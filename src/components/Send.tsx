@@ -6,9 +6,11 @@ import { addConversation, conversationMap, currentConversationId } from '@/store
 import { loadingStateMap, streamsMap } from '@/stores/streams'
 import { handlePrompt } from '@/logics/conversation'
 import { globalAbortController } from '@/stores/settings'
-import { useMobileScreen } from '@/hooks'
+import { useI18n, useMobileScreen } from '@/hooks'
+import Button from './ui/Button'
 
 export default () => {
+  const { t } = useI18n()
   let inputRef: HTMLTextAreaElement
   const $conversationMap = useStore(conversationMap)
   const $currentConversationId = useStore(currentConversationId)
@@ -56,29 +58,38 @@ export default () => {
         inputRef.focus()
       }}
     >
-      <div class="flex-1 op-30">Enter Something...</div>
-      <div class="i-carbon-send op-50 text-xl" />
+      <div class="flex-1 op-30 text-sm">{t('send.placeholder')}</div>
     </div>
   )
 
   const EditState = () => (
-    <div class="h-full relative">
-      <textarea
-        ref={inputRef!}
-        placeholder="Enter something..."
-        autocomplete="off"
-        onBlur={() => { isSendBoxFocus.set(false) }}
-        onInput={() => { setInputPrompt(inputRef.value) }}
-        onKeyDown={(e) => {
-          e.key === 'Enter' && !e.isComposing && !e.shiftKey && handleSend()
-        }}
-        class="absolute inset-0 py-4 px-[calc(max(1.5rem,(100%-48rem)/2))] scroll-pa-4 input-base"
-      />
-      <div
-        onClick={handleSend}
-        class={`absolute right-[calc(max(1.5rem,(100%-48rem)/2)-0.5rem)] bottom-3 bg-base-100 border border-base p-2 rounded-md hv-base ${inputPrompt() && 'bg-teal-600 dark:bg-teal-700 b-none hover:bg-teal-700 dark:hover:bg-teal-800 text-white'}`}
-      >
-        <div class="i-carbon-send op-80 dark:op-70 text-xl cursor-pointer" />
+    <div class="h-full flex flex-col">
+      <div class="flex-1 relative">
+        <textarea
+          ref={inputRef!}
+          placeholder={t('send.placeholder')}
+          autocomplete="off"
+          onBlur={() => { isSendBoxFocus.set(false) }}
+          onInput={() => { setInputPrompt(inputRef.value) }}
+          onKeyDown={(e) => {
+            e.key === 'Enter' && !e.isComposing && !e.shiftKey && handleSend()
+          }}
+          class="h-full w-full absolute inset-0 py-4 px-[calc(max(1.5rem,(100%-48rem)/2))] scroll-pa-4 input-base text-sm"
+        />
+      </div>
+      <div class="fi justify-between gap-2 h-14 px-[calc(max(1.5rem,(100%-48rem)/2)-0.5rem)] border-t border-base">
+        <div>
+          {/* <Button
+            icon="i-carbon-plug"
+            onClick={() => {}}
+          /> */}
+        </div>
+        <Button
+          icon="i-carbon-send"
+          onClick={handleSend}
+          variant={inputPrompt() ? 'primary' : 'normal'}
+          // prefix={t('send.button')}
+        />
       </div>
     </div>
   )
@@ -115,7 +126,7 @@ export default () => {
     <div class="max-w-base h-full fi flex-row gap-2">
       <div class="flex-1 op-50">Thinking...</div>
       <div
-        class="border border-darker px-2 py-1 rounded-md text-sm op-40 hv-base hover:bg-white"
+        class="border border-base-100 px-2 py-1 rounded-md text-sm op-40 hv-base hover:bg-white"
         onClick={() => { handleAbortFetch() }}
       >
         Abort
@@ -138,7 +149,7 @@ export default () => {
 
   const stateRootClass = () => {
     if (stateType() === 'normal')
-      return 'bg-base-100 hv-base'
+      return 'hv-base'
     else if (stateType() === 'error')
       return 'bg-red/8'
     else if (stateType() === 'loading')
@@ -156,7 +167,7 @@ export default () => {
     else if (stateType() === 'loading')
       return 'px-6 h-14'
     else if (stateType() === 'editing')
-      return 'h-40'
+      return 'h-54'
     return ''
   }
 
